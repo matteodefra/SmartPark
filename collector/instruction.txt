@@ -1,0 +1,19 @@
+# Terminal 1
+
+cd contiki-ng/Project/sensors/rpl-border-router/
+
+make TARGET=nrf52840 BOARD=dongle border-router.dfu-upload PORT=/dev/ttyACM67
+
+make TARGET=nrf52840 BOARD=dongle connect-router PORT=/dev/ttyACM67 
+
+# Terminal 2
+
+sudo mosquitto -c /etc/mosquitto/mosquitto.conf
+
+# Terminal 3
+
+cd contiki-ng/Project/sensors/mqtt_sensor/
+
+make TARGET=nrf52840 BOARD=dongle mqtt-client.dfu-upload PORT=/dev/ttyACM15 
+
+make TARGET=nrf52840 BOARD=dongle login PORT=/dev/ttyACM15

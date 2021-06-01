@@ -62,18 +62,19 @@ static void res_post_put_handler(coap_message_t *request, coap_message_t *respon
 	if((len = coap_get_post_variable(request, "state", &state))) {
 		if (atoi(state) == 1){
 			leds_set(LEDS_NUM_TO_MASK(LEDS_RED));
+      occupied = true;
 		}
 
 		else if(atoi(state) == 0){
 			leds_set(LEDS_NUM_TO_MASK(LEDS_GREEN));
-
+      occupied = false;
 		}
 
 		else{
 			check = 0;
 		}
 
-		occupied = atoi(state);
+		// occupied = atoi(state);
 
 	}
 	else{

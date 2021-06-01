@@ -24,8 +24,10 @@
 #define SERVER_REGISTRATION "registration"
 
 #define TOGGLE_INTERVAL 10
+#define TIMEOUT_INTERVAL 30
 
 static struct etimer register_timer;
+static struct etimer timeout_timer;
 
 bool registered = false;
 bool pressed = false;
@@ -89,9 +91,9 @@ PROCESS_THREAD(coap_client, ev, data){
 				printf("%s\n", msg);
 				coap_set_payload(request, (uint8_t *)msg, strlen(msg));
 
-				registered = true;
+
 				COAP_BLOCKING_REQUEST(&server_ep, request, response_handler);
-				// registered = true;
+				registered = true;
 				break;
 			}
 
@@ -130,6 +132,7 @@ PROCESS_THREAD(sensor_node, ev, data){
 				btn = (button_hal_button_t *)data;
 				printf("Release event (%s)\n", BUTTON_HAL_GET_DESCRIPTION(btn));
 				pressed = !pressed;
+				etimer_set(&timeout_timer,TIMEOUT_INTERVAL*CLOCK_SECOND);
 			}
 		}
 
@@ -139,30 +142,45 @@ PROCESS_THREAD(sensor_node, ev, data){
 				btn = (button_hal_button_t *)data;
 				printf("Release event (%s)\n", BUTTON_HAL_GET_DESCRIPTION(btn));
 				pressed = !pressed;
+				etimer_set(&timeout_timer,TIMEOUT_INTERVAL*CLOCK_SECOND);
 			}
 		}
 
 		if ((ev == serial_line_event_message) && pressed && !occupied) {
 			if (registered) {
+				// Client has put info, stop the running timer (if any)
+				etimer_stop(&timeout_timer);
+				printf("Running timer stopped!\n");
 				printf("Received: %s\n",(char*)data);
 				strcpy(datas,(char*)data);
 				printf("Datas written %s\n",datas);
 				res_client.trigger();
 				// Elaborate message
 				pressed = false;
-				occupied = true;
+				// occupied = true;
 			}
 		}
 
 		if ((ev == serial_line_event_message) && pressed && occupied) {
 			if (registered) {
+				etimer_stop(&timeout_timer);
+				printf("Running timer stopped!\n");
 				printf("Received (leaving mode): %s\n",(char*)data);
 				// Elaborate message
 				strcpy(datas,(char*)data);
 				printf("Datas written %s\n",datas);
 				res_client.trigger();
 				pressed = false;
-				occupied = false;
+				// occupied = false;
+			}
+		}
+
+		if ((ev == PROCESS_EVENT_TIMER) && data == &timeout_timer) {
+			// Timeout when too much time interoccur between button press and input credentials
+			if (registered) {
+				// Restore the normal workflow
+				printf("Timeout triggered!\n");
+				pressed = false;
 			}
 		}
 
