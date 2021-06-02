@@ -8,6 +8,7 @@ To run the collector, python3 and the following packages are required:
 ```
 python3 -m pip install PyMySQL
 python3 -m pip install tabulate
+pip install paho-mqtt
 pip install CoAPthon
 ```
 I suggest to clone this repository into the folder *contiki-ng* of your OS, in order to have the contiki path inside the Makefile of the sensors agree.
