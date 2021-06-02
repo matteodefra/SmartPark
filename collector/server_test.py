@@ -9,13 +9,20 @@ import logging
 ip = "::"
 port = 5683
 
-
+'''
+    Class CoAPServer. Simply instantiate a CoAPServer (extends base class CoAP) and add a resource 
+    AdvancedResource, to manage registrations
+'''
 class CoAPServer(CoAP):
     def __init__(self, host, port):
         CoAP.__init__(self, (host, port), False)
         # Register resource: server behave as client in order to get the registration
         self.add_resource("registration", AdvancedResource())
 
+'''
+    Main function. Logging is suppressed, some users are generated with respective passwords 
+    and finally CoAPServer and MQTT client thread are intialized
+'''
 def main():
     logging.getLogger("coapthon.server.coap").setLevel(logging.WARNING)
     logging.getLogger("coapthon.layers.messagelayer").setLevel(logging.WARNING)

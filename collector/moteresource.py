@@ -12,8 +12,15 @@ from database import Database
 import tabulate
 import logging
 
+'''
+    Class MoteResource: represents the lock sensor object. It starts observing for possible updates on the specific resource.
+    An HelperClient is launched, with a specific callback when a message is received
+'''
 class MoteResource:
 
+    '''
+        Init method: instantiate the different fields of our lock. Connection to database is opened too
+    '''
     def __init__(self,source_address,resource,node_id,node_type):
         # Initialize mote resource fields
         self.db = Database()
@@ -30,9 +37,10 @@ class MoteResource:
         self.start_observing()
 
     '''
-    Extract the request payload containing the client name and password and the actual box situation.
-    If client is registered, then a post message is sent to the mote in order to modify the state
-    of the lock. Then a query is executed to update the database with the current situation
+        Extract the request payload containing the client name and password and the actual box situation.
+        If client is registered, then a post message is sent to the mote in order to modify the state
+        of the lock. Then a query is executed to update the database with the current situation. 
+        Finally, the data log is showed when the query is commited
     '''
     def presence_callback_observer(self,response):
         print("Callback called, resource arrived")
@@ -66,7 +74,9 @@ class MoteResource:
             except Exception as e1:
                 print(str(e1))
 
-
+    '''
+        Simple method to query the database and show in tabular form the collected data
+    '''
     def show_data_log(self):
 
         print(self.connection)
@@ -80,7 +90,7 @@ class MoteResource:
             print(tabulate.tabulate(rows,header,tablefmt='grid'))
 
     '''
-    Execute simple insert on database and call show_data_log
+        Execute simple insert on database and call show_data_log
     '''
     def execute_query(self,value):
 
@@ -112,7 +122,8 @@ class MoteResource:
 
 
     '''
-        Launch helper client to listen for incoming new messages
+        Launch helper client to listen for incoming new messages.
+        CoAPthon logging is suppressed for better visualization of output
     '''
     def start_observing(self):
         logging.getLogger("coapthon.server.coap").setLevel(logging.WARNING)

@@ -15,7 +15,10 @@ from moteresource import MoteResource
 # Contain all the registered users
 registeredUsersDict = {}
 
-# Advanced resource: manage automatically response to registration request
+'''
+    Advanced resource: manage automatically response to registration request. Creates a MoteResource object 
+    each time a lock sensor register through the CoAPServer
+'''
 class AdvancedResource(Resource):
 
     def __init__(self, name="Advanced"):
